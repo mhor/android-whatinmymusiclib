@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">WhatInMyMusicLib</string>
+    <string name="permission_external_storage_rationale">You should enable read/write external storage permissions</string>
+    <string name="ok">OL</string>
+</resources>
