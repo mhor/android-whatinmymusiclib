@@ -49,14 +49,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mLayout = findViewById(R.id.main_layout);
 
-
-        Log.i(TAG, "HELLO1");
         Button button = (Button) findViewById(R.id.export_music_lib_btn);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.i(TAG, "HELLO");
-
                 Cursor tracks = getContentResolver().query(
                         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                         new String[] {
@@ -104,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
                         toast.show();
 
                     } catch (Exception e) {
-                        Log.i(TAG, "YEAH3");
                         e.printStackTrace();
                     }
                 }
