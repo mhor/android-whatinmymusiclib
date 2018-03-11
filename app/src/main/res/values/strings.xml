@@ -2,4 +2,9 @@
     <string name="app_name">WhatInMyMusicLib</string>
     <string name="permission_external_storage_rationale">You should enable read/write external storage permissions</string>
     <string name="ok">OL</string>
+    <string name="source_name">Source name</string>
+    <string name="save_config">Save configuration</string>
+    <string name="export_music_lib">Export music lib</string>
+    <string name="save_config_success">Config successfuly saved</string>
+    <string name="export_success">Successfully exported</string>
 </resources>

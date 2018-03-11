@@ -21,9 +21,34 @@
     android:id="@+id/main_layout">
 
 
-    <Button
-        android:id="@+id/export_music_lib_btn"
+    <EditText
+        android:id="@+id/source_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Export Music Lib" />
+        android:ems="10"
+        android:inputType="text"
+        android:text="@string/source_name" />
+    <Button
+        android:id="@+id/save_config"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/save_config" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:gravity="center|bottom"
+        android:orientation="vertical" >
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
+        <Button
+            android:id="@+id/export_music_lib_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/export_music_lib" />
+    </LinearLayout>
 </LinearLayout>

@@ -2,6 +2,7 @@ package com.mhor.whatinmymusiclib;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Environment;
@@ -13,10 +14,12 @@ import android.util.Log;
 import android.view.View;
 import android.support.design.widget.Snackbar;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mhor.whatinmymusiclib.service.TaskQueueService;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -24,7 +27,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
 
+import static java.security.AccessController.getContext;
+
 public class MainActivity extends AppCompatActivity {
+
+    public static final String PREFS_NAME = "WhatInMyMusicLibPrefs" ;
+    public static final String SOURCE_NAME = "sourceName";
+    public static final String DEFAULT_SOURCE_NAME = "DefaultPhone";
+
 
     public static final String TAG = "MainActivity";
 
@@ -43,31 +53,62 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
+    private String sourceName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mLayout = findViewById(R.id.main_layout);
 
-        Button button = (Button) findViewById(R.id.export_music_lib_btn);
-        button.setOnClickListener(new View.OnClickListener() {
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        String sourceName = settings.getString(SOURCE_NAME, DEFAULT_SOURCE_NAME);
+        setSourceName(sourceName);
+
+        final EditText sourceNameEditText = (EditText) findViewById(R.id.source_name);
+
+        Button configButton = (Button) findViewById(R.id.save_config);
+        configButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                setSourceName(sourceNameEditText.getText().toString());
+
+                SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString(SOURCE_NAME, getSourceName());
+
+                editor.commit();
+
+                Context context = getApplicationContext();
+                Toast.makeText(context, context.getString(R.string.save_config_success), Toast.LENGTH_LONG).show();
+
+            }
+        });
+
+        Button exportButton = (Button) findViewById(R.id.export_music_lib_btn);
+        exportButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Context context = getApplicationContext();
+
+                context.startService(TaskQueueService.getMusicLibExportIntent(context));
+/*
                 Cursor tracks = getContentResolver().query(
                         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        new String[] {
+                        new String[]{
                                 MediaStore.Audio.AudioColumns.TITLE,
                                 MediaStore.Audio.AudioColumns.TRACK,
                                 MediaStore.Audio.AudioColumns.ALBUM,
                                 MediaStore.Audio.AudioColumns.ARTIST,
                                 MediaStore.Audio.AudioColumns.DATE_ADDED
                         },
-                        MediaStore.Audio.AudioColumns.IS_MUSIC+" = ?",
+                        MediaStore.Audio.AudioColumns.IS_MUSIC + " = ?",
                         new String[]{"1"},
                         null
                 );
 
                 Export export = new Export();
+                export.setSourceName(getSourceName());
                 while (tracks.moveToNext()) {
                     Track track = new Track();
                     track.setName(tracks.getString(tracks.getColumnIndex(MediaStore.Audio.AudioColumns.TITLE)));
@@ -83,9 +124,9 @@ public class MainActivity extends AppCompatActivity {
                 String json = gson.toJson(export);
 
                 if (isExternalStorageReadable() && isExternalStorageWritable()) {
-                    Long tsLong = System.currentTimeMillis()/1000;
+                    Long tsLong = System.currentTimeMillis() / 1000;
                     String ts = tsLong.toString();
-                    File exportFile = getAppStorageDir("export-"+ts+".json");
+                    File exportFile = getAppStorageDir("export-" + ts + ".json");
                     try {
                         OutputStream os = new FileOutputStream(exportFile);
                         os.write(json.getBytes());
@@ -93,17 +134,15 @@ public class MainActivity extends AppCompatActivity {
                         os.close();
 
                         Context context = getApplicationContext();
-                        CharSequence text = "Successfully exported";
-                        int duration = Toast.LENGTH_LONG;
-
-                        Toast toast = Toast.makeText(context, text, duration);
-                        toast.show();
+                        Toast.makeText(context, context.getString(R.string.export_success), Toast.LENGTH_LONG).show();
 
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
+                */
             }
+
         });
 
         Log.i(TAG, "Checking permissions.");
@@ -113,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED
-        ) {
+                ) {
             // Contacts permissions have not been granted.
             Log.i(TAG, "External storage permissions has NOT been granted. Requesting permissions.");
             requestExternalStoragePermissions();
@@ -122,8 +161,8 @@ public class MainActivity extends AppCompatActivity {
 
             // External storage permissions have been granted. Show the contacts fragment.
             Log.i(
-                TAG,
-                "External storage permissions have already been granted."
+                    TAG,
+                    "External storage permissions have already been granted."
             );
         }
     }
@@ -183,5 +222,13 @@ public class MainActivity extends AppCompatActivity {
         File dir = new File (sdCard.getAbsolutePath() + "/WhatInMyMusicLib");
         dir.mkdirs();
         return new File(dir, exportFileName);
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
+    }
+
+    public String getSourceName() {
+        return sourceName;
     }
 }

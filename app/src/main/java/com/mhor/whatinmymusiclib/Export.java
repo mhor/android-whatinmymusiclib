@@ -8,6 +8,7 @@ import java.util.Date;
  */
 
 public class Export {
+    private String sourceName;
     private Date createdAt;
     private ArrayList<Track> tracks;
 
@@ -30,5 +31,13 @@ public class Export {
 
     public void setTracks(ArrayList<Track> tracks) {
         this.tracks = tracks;
+    }
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
     }
 }
